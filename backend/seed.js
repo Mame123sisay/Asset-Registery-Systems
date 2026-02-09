@@ -1,4 +1,4 @@
-import User from './src/models/User.js'
+{/*import User from './src/models/User.js'
 import bcrypt from'bcrypt'
 export const Register= async()=>{
   try{
@@ -17,3 +17,4 @@ export const Register= async()=>{
   }
 
 }
+*/}

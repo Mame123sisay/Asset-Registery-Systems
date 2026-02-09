@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';       
 import dotenv from 'dotenv';          
 import cors from 'cors';    
-import {Register} from './seed.js'           
+//import {Register} from './seed.js'           
 //import morgan from 'morgan';           
 import dbConnection from './src/config/db.js';
 import assetRoutes from './src/routes/assets.js';
