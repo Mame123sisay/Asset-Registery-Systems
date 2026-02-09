@@ -67,7 +67,7 @@ export default function ProfilePage({ userId }) {
         <>
           <div className="flex items-center space-x-4">
             <img
-              src={`http://localhost:4000${user.profilePicture}`}
+              src={`${import.meta.env.VITE_API_URL}${user.profilePicture}`}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover border"
             />

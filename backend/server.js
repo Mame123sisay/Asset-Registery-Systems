@@ -15,7 +15,12 @@ dotenv.config({override:true}); // Reads .env and attaches values to process.env
 
 // 4) Create the Express app
 const app = express();  
-app.use(cors());
+// Allow requests only from your frontend
+app.use(cors({
+    origin: "https://asset-registery-systems-1.onrender.com", // <-- FRONTEND URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if you need cookies/auth headers
+}));
 app.use(express.json())  
 app.use('/uploads', express.static('public/uploads'));
 

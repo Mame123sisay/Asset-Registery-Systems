@@ -12,7 +12,7 @@ export default function Navbar() {
       {user ? (
         <div className="flex items-center space-x-3">
           <img
-            src={`http://localhost:4000${user.profilePicture}`} // fallback image
+            src={`${import.meta.env.VITE_API_URL}${user.profilePicture}`} // fallback image
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover border"
           />
