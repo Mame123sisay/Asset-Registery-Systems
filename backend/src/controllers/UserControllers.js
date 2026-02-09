@@ -1,6 +1,6 @@
 import User from '../models/User.js'
 import Employee from '../models/Employee.js';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 const addUser=async(req,res)=>{
   try{
     const {fullname,password,role,email}=req.body;
