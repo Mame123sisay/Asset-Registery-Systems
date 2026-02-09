@@ -26,7 +26,7 @@ export default function LoginPage() {
         if(response.data.user.role==='Admin'){
           navigate('/admin-dashboard');
         }
-        else {
+        else{
           navigate('/it-staff-dashboard');
         }
       }
