@@ -13,7 +13,7 @@ const AssetSchema = new mongoose.Schema(
     //installedSoftware: [{ name: String, licenseKey: String, expiryDate: Date }],
     //network: { hostname: String, ipAddress: String, macAddress: String },
     departmentId: { type: mongoose.Types.ObjectId, ref: 'Department', index: true },
-    assignedUserId: { type: mongoose.Types.ObjectId, ref: 'OrgUser' },
+    assignedUserId: { type: mongoose.Types.ObjectId, ref: 'Employee' },
     location: { building: String, floor: String, room: String },
     condition: { type: String, enum: ['New', 'Good', 'Fair', 'Poor'] },
     //warranty: { vendor: String, purchaseDate: Date, expiryDate: Date },

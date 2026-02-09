@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
 
-export default function OrgUserEditForm({ user, onClose, onUpdated }) {
+export default function UserEditForm({ user, onClose, onUpdated }) {
+  console.log(user)
   const [fullname, setFullname] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [extension, setExtension] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
-  const [departments, setDepartments] = useState([]);
+  const [role, setRole] = useState('');
+  //const [departmentId, setDepartmentId] = useState('');
+  //const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-
+  const [userRole,setUserRole]=useState([]);
   // 🔑 Sync props to state when user changes
   useEffect(() => {
     if (user) {
-      setFullname(user.fullname || '');
-      setUsername(user.username || '');
+      setFullname(user.name || '');
       setEmail(user.email || '');
-      setExtension(user.extension || '');
-      setDepartmentId(user.departmentId?._id || '');
+     // setDepartmentId(user.departmentId?._id || '');
+      setRole(user.role|| '');
     }
   }, [user]);
 
   // Fetch departments for dropdown
-  useEffect(() => {
+  {/* 
+     useEffect(() => {
     async function fetchDepartments() {
       try {
         const res = await client.get('/api/departments');
@@ -34,6 +34,39 @@ export default function OrgUserEditForm({ user, onClose, onUpdated }) {
     }
     fetchDepartments();
   }, []);
+  useEffect(()=>{
+    const fetchRoles= async()=>{
+      try {
+        const res=await client.get('/api/user/role');
+        setUserRole(res.data);
+      }
+      catch(err){
+        console.error('failed to load user role',err);
+      }
+
+    }
+    fetchRoles();
+
+  },[])*/}
+ useEffect(()=>{
+    const fetchRoles= async()=>{
+      try {
+        const res=await client.get('/api/users',{
+           headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        setUserRole(res.data.users);
+        console.log(res.data.users)
+      }
+      catch(err){
+        console.error('failed to load user role',err);
+      }
+
+    }
+    fetchRoles();
+
+  },[])
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -41,15 +74,19 @@ export default function OrgUserEditForm({ user, onClose, onUpdated }) {
     setMessage(null);
 
     try {
-      const res = await client.put(`/api/org-users/${user._id}`, {
+      const res = await client.put(`/api/users/edit${user._id}`, {
         fullname,
-        username,
         email,
-        extension,
-        departmentId,
+        role
+        //departmentId,
+        //authUserId,
+       
+      },{ headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
       });
       setMessage('User updated successfully!');
-      onUpdated(res.data); // update parent state
+      onUpdated(res.data.updatedUser); // update parent state
       onClose();           // close modal
     } catch (err) {
       setMessage(err.message || 'Failed to update user');
@@ -60,7 +97,7 @@ export default function OrgUserEditForm({ user, onClose, onUpdated }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Edit Org User</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Edit User</h2>
 
       <label className="block mb-3">
         <span className="text-gray-700">Full Name</span>
@@ -73,16 +110,7 @@ export default function OrgUserEditForm({ user, onClose, onUpdated }) {
         />
       </label>
 
-      <label className="block mb-3">
-        <span className="text-gray-700">Username</span>
-        <input
-          type="text"
-          className="border rounded w-full px-3 py-2 mt-1"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      </label>
+     
 
       <label className="block mb-3">
         <span className="text-gray-700">Email</span>
@@ -95,30 +123,23 @@ export default function OrgUserEditForm({ user, onClose, onUpdated }) {
       </label>
 
       <label className="block mb-3">
-        <span className="text-gray-700">Extension</span>
-        <input
-          type="text"
-          className="border rounded w-full px-3 py-2 mt-1"
-          value={extension}
-          onChange={(e) => setExtension(e.target.value)}
-        />
-      </label>
-
-      <label className="block mb-3">
-        <span className="text-gray-700">Department</span>
+        <span className="text-gray-700">Roles</span>
         <select
           className="border rounded w-full px-3 py-2 mt-1"
-          value={departmentId}
-          onChange={(e) => setDepartmentId(e.target.value)}
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
         >
-          <option value="">Select department</option>
-          {departments.map((d) => (
-            <option key={d._id} value={d._id}>
-              {d.name}
+         
+          {userRole.map((d) => (
+            <option key={d.id} value={d.role}>
+              {d.role}
             </option>
           ))}
         </select>
       </label>
+
+
+   
 
       {message && <div className="text-center mb-3 text-sm text-blue-600">{message}</div>}
 

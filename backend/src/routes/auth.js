@@ -3,12 +3,13 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import AuthUser from '../models/AuthUser.js';
-import OrgUser from '../models/OrgUser.js';
+import OrgUser from '../models/Employee.js';
+import { Login } from '../controllers/AuthController.js';
 
 const router = express.Router();
 
 // Signup: create both AuthUser + OrgUser
-router.post('/', async (req, res) => {
+{/*router.post('/', async (req, res) => {
   const { email, password, role,fullname, departmentId } = req.body;
   try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
 });
 
 // Login: check AuthUser, then fetch OrgUser
-router.post('/login', async (req, res) => {
+{/*router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   
   try {
@@ -47,6 +48,7 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+   
 //console.log(token);
 //console.log( authUser.role)
     res.json({
@@ -58,6 +60,7 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Server error',error:err.message });
   }
-});
+});*/}
+router.post('/login',Login);
 
 export default router;

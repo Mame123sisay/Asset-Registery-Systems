@@ -5,35 +5,25 @@ import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(()=>{
+    const storedUser=localStorage.getItem('pos-user');
+    return storedUser ? JSON.parse(storedUser):null;
+  });
   const navigate=useNavigate();
-  async function login(email, password) {
-    const res = await client.post('/api/auth/login', { email, password });
-    const { token, role, fullname, department, email: userEmail } = res.data;
-
-    // store token and user info
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify({ email: email, role, fullname, department }));
-
-    // update React state immediately
-    setUser({ email: userEmail, role, fullname, department });
+  async function login(userData,token) {
+    setUser(userData);
+    localStorage.setItem('pos-user',JSON.stringify(userData));
+    localStorage.setItem('pos-token',token);
   }
 
   function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('pos-token');
+    localStorage.removeItem('pos-user');
     setUser(null);
     // 👇 redirect to home 
-    navigate('/home');
+    navigate('/login');
   }
 
-  // restore user on refresh
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

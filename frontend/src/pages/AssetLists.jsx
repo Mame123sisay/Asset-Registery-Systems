@@ -7,28 +7,55 @@ export default function AssetLists() {
   const [loading, setLoading] = useState(false);
   const [showForm,setShowForm]=useState(false);
   const [editAsset, setEditAsset] = useState(null);
+  const [filters, setFilters] = useState({
+  serialNumber:'',
+  model: '',
+  type: '',
+  ramGB: '',
+  departmentName: '',
+  userFullname: '',
+  condition: ''
+});
+const [page, setPage] = useState(1); 
+const [pages, setPages] = useState(1);
+async function fetchAssets() {
+   setLoading(true); 
+
+   try { 
+    const res = await client.get('/api/assets', 
+    { params: {...filters,page,limit:5},
+      headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        } }); 
+   setAssets(res.data.assets); 
+   setPages(res.data.pages);
+   
+  } catch (err) 
+  { console.error('Failed to load assets', err); 
+
+  } finally { setLoading(false); } }
   useEffect(() => {
-    async function fetchAssets() {
-      setLoading(true);
-      try {
-        const res = await client.get('/api/assets');
-        setAssets(res.data);
-      } catch (err) {
-        console.error('Failed to load assets', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAssets();
-  }, []);
+     fetchAssets(); 
+    },[filters,page]);
+
+     function handleAssetCreated(newAsset) { 
+    setAssets(prev => [...prev, newAsset]); }
+
 
   async function handleDelete(id) {
-    try {
-      await client.delete(`/api/assets/${id}`);
+    if(window.confirm('Are you sure you want to delete this assets')){
+      try {
+      await client.delete(`/api/assets/delete${id}`,{
+         headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+      });
       setAssets(assets.filter(a => a._id !== id));
     } catch (err) {
       console.error('Delete failed', err);
     }
+    }
+   
   }
 
   function handleEdit(asset) {
@@ -53,11 +80,88 @@ export default function AssetLists() {
     + Add Asset
   </button>
 </div>
+<div className="mb-6 bg-gray-100 p-4 rounded-lg shadow">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input 
+    type="text"
+     placeholder="Serial Number" 
+     value={filters.serialNumber} 
+     onChange={e => setFilters({ ...filters, serialNumber: e.target.value })}
+      className="border rounded px-3 py-2"
+/>
+    <input
+      type="text"
+      placeholder="Model"
+      value={filters.model}
+      onChange={e => setFilters({ ...filters, model: e.target.value })}
+      className="border rounded px-3 py-2"
+    />
+    <select
+      value={filters.type}
+      onChange={e => setFilters({ ...filters, type: e.target.value })}
+      className="border rounded px-3 py-2"
+    >
+      <option value="">All Types</option>
+      <option value="Laptop">Laptop</option>
+      <option value="Desktop">Desktop</option>
+     
+    </select>
+    <input
+      type="text"
+      placeholder="RAM (GB)"
+      value={filters.ramGB}
+      onChange={e => setFilters({ ...filters, ramGB: e.target.value })}
+      className="border rounded px-3 py-2"
+    />
+    <input
+      type="text"
+      placeholder="DepartmentName"
+      value={filters.departmentName}
+      onChange={e => setFilters({ ...filters, departmentName: e.target.value })}
+      className="border rounded px-3 py-2"
+    />
+    <input
+      type="text"
+      placeholder="User Fullname"
+      value={filters.userFullname}
+      onChange={e => setFilters({ ...filters, userFullname: e.target.value })}
+      className="border rounded px-3 py-2"
+    />
+    <select
+      value={filters.condition}
+      onChange={e => setFilters({ ...filters, condition: e.target.value })}
+      className="border rounded px-3 py-2"
+    >
+      <option value="">All Conditions</option>
+      <option value="New">New</option>
+      <option value="Good">Good</option>
+      <option value="Fair">Fair</option>
+       <option value="Poor">Poor</option>
+    </select>
+  </div>
+  <div className="mt-4 flex space-x-2">
+    <button
+      onClick={fetchAssets}
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
+    >
+      Apply Filters
+    </button>
+    <button
+      onClick={() => { setFilters({ model:'', type:'', ramGB:'', departmentName:'', userFullname:'', condition:'' }); fetchAssets(); }}
+      className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 cursor-pointer"
+    >
+      Clear
+    </button>
+  </div>
+</div>
+ <div className="flex justify-center mt-4 space-x-2"> <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50" > Prev </button> <span className="px-3 py-1">Page {page} of {pages}</span> <button disabled={page === pages} onClick={() => setPage(page + 1)} className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50" > Next </button> </div>
 
       {loading ? (
         <p className="text-center text-gray-500">Loading...</p>
       ) : (
         <div className="overflow-x-auto">
+          {/* Filter Bar */}
+
           <table className="min-w-full border border-gray-200 rounded-lg shadow-md">
             <thead>
               <tr className="bg-blue-600 text-white">
@@ -122,14 +226,14 @@ export default function AssetLists() {
             </tbody>
           </table>
               {showForm && (
-                            <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-end">
+                            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-50">
                               <div className="bg-white rounded-lg shadow-lg p-6 w-full mt-10 max-w-md">
                                 <button onClick={() => setShowForm(false)}
                                   className="text-red-600 font-bold hover:text-red-700 cursor-pointer float-right "
                                 >
                                   ✕
                                 </button>
-                                <AssetForm />
+                                <AssetForm onAssetCreated={handleAssetCreated} />
                               </div>
                             </div>
                           )}
@@ -137,7 +241,7 @@ export default function AssetLists() {
       )}
       {/*} Modal: */}
       {editAsset && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"> <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+         <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-50"> <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
            <button onClick={() => setEditAsset(null)} className="absolute top-2 right-2 text-red-600 font-bold hover:cursor-pointer">✕</button>
             <AssetEditForm asset={editAsset} onClose={() => setEditAsset(null)} onUpdated={handleUpdated} /> 
               </div> 

@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client'; // axios instance
 
-export default function OrgUserForm({onUserCreated}) {
-  const [password, setPassword] = useState('');
+export default function EmployeAddForm({ onEmployeCreated }) {
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   const [fullname, setFullname] = useState('');
-  const[role,setRole]=useState('');
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [errors, setErrors] = useState({}); // field-specific errors
 
   // Fetch departments for dropdown
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        const res = await client.get('/api/departments');
-        setDepartments(res.data);
+        const res = await client.get('/api/departments', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('pos-token')}`
+          }
+        });
+        setDepartments(res.data.departments);
       } catch (err) {
         console.error('Failed to load departments', err);
       }
@@ -24,46 +28,68 @@ export default function OrgUserForm({onUserCreated}) {
     fetchDepartments();
   }, []);
 
+  // Manual validation
+  function validateForm() {
+    const newErrors = {};
+    if (!fullname.trim()) newErrors.fullname = "Full name is required";
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!email.includes("@")) newErrors.email = "Invalid email format";
+    if (!phone.trim()) newErrors.phone = "Phone is required";
+    else if (phone.length < 10) newErrors.phone = "Phone must be at least 10 digits";
+    if (!departmentId) newErrors.departmentId = "Department is required";
+    return newErrors;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
 
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setLoading(false);
+      return;
+    }
+
     try {
-     const res= await client.post('/api/auth', {
-        password,
-        email,
-        departmentId,
+      const response = await client.post('/api/employees/add', {
         fullname,
-        role
+        email,
+        phone,
+        departmentId
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('pos-token')}`
+        }
       });
-      // 🔥 get the created user from backend
-       const { orgUser } = res.data; 
-       // 🔥 call parent callback 
-       onUserCreated(orgUser);
-       setMessage('OrgUser created successfully!'); // if you have a list of users in state, update it immediately 
-      // setUsers(prev => [...prev, orgUser]);
-      setMessage('OrgUser created successfully!');
-      setPassword('');
+
+      const newEmployee = response.data.newEmploye;
+      onEmployeCreated(newEmployee);
+      setMessage('Employee created successfully!');
+
+      // reset form
+      setPhone('');
       setEmail('');
       setDepartmentId('');
       setFullname('');
-      setRole(''); // reset role if needed
+      setErrors({});
     } catch (err) {
-      setMessage(err.message || 'Failed to create OrgUser');
+      setMessage(err.message || 'Failed to create Employee');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex items-center justify-center  bg-gray-100 px-4">
+    <div className="flex items-center justify-center bg-gray-100 px-4">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Add Org User</h2>
-          <label className="block mb-3">
+        <h2 className="text-2xl font-bold mb-6 text-center">Add Employee</h2>
+
+        <label className="block mb-3">
           <span className="text-gray-700">Full name</span>
           <input
             type="text"
@@ -71,6 +97,7 @@ export default function OrgUserForm({onUserCreated}) {
             value={fullname}
             onChange={(e) => setFullname(e.target.value)}
           />
+          {errors.fullname && <p className="text-red-500 text-sm">{errors.fullname}</p>}
         </label>
 
         <label className="block mb-3">
@@ -81,16 +108,18 @@ export default function OrgUserForm({onUserCreated}) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
         </label>
-           <label className="block mb-3">
-          <span className="text-gray-700">Password</span>
+
+        <label className="block mb-3">
+          <span className="text-gray-700">Phone</span>
           <input
-            type="password"
+            type="number"
             className="border rounded w-full px-3 py-2 mt-1"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
           />
+          {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
         </label>
 
         <label className="block mb-3">
@@ -99,7 +128,6 @@ export default function OrgUserForm({onUserCreated}) {
             className="border rounded w-full px-3 py-2 mt-1"
             value={departmentId}
             onChange={(e) => setDepartmentId(e.target.value)}
-            required
           >
             <option value="">Select department</option>
             {departments.map((d) => (
@@ -108,21 +136,8 @@ export default function OrgUserForm({onUserCreated}) {
               </option>
             ))}
           </select>
+          {errors.departmentId && <p className="text-red-500 text-sm">{errors.departmentId}</p>}
         </label>
-          <select
-  className="border rounded w-full px-3 py-2 mt-1"
-  value={role}
-  onChange={(e) => setRole(e.target.value)}
-  required
->
-<option value="">Select Role</option>
-  <option value="Admin">Admin</option>
-  <option value="IT">IT</option>
-  <option value="Viewer">Viewer</option>
-</select>
-
-
-     
 
         {message && (
           <div className="text-center mb-3 text-sm text-blue-600">{message}</div>
@@ -133,7 +148,7 @@ export default function OrgUserForm({onUserCreated}) {
           disabled={loading}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
         >
-          {loading ? 'Saving...' : 'Save Org User'}
+          {loading ? 'Saving...' : 'Save Employee'}
         </button>
       </form>
     </div>

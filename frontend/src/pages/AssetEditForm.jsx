@@ -37,10 +37,18 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const depRes = await client.get('/api/departments');
-        setDepartments(depRes.data);
-        const userRes = await client.get('/api/org-users');
-        setUsers(userRes.data);
+        const depRes = await client.get('/api/departments',{
+           headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        setDepartments(depRes.data.departments);
+        const userRes = await client.get('/api/employees',{
+           headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        setUsers(userRes.data.employees);
       } catch (err) {
         console.error('Failed to load dropdown data', err);
       }
@@ -60,7 +68,7 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
     setMessage(null);
 
     try {
-      const res = await client.put(`/api/assets/${asset._id}`, {
+      const res = await client.put(`/api/assets/edit${asset._id}`, {
         serialNumber,
         type,
         model,
@@ -71,7 +79,12 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
         condition,
         departmentId,
         assignedUserId,
-      });
+      },
+    {
+       headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+    });
       setMessage('Asset updated successfully!');
       onUpdated(res.data);
       onClose();

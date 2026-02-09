@@ -2,32 +2,54 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+import { client } from '../api/client';
+
 export default function LoginPage() {
   const { login } = useAuth();   // get login function from context
   const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e) {
+  const handleSubmit=async(e)=>{
     e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      await login(email, password);   // call backend login
-      navigate('/assets');            // redirect after success
-    } catch (err) {
-      setError(err.message || 'Login failed');
-    } finally {
+    try{
+      const response=await client.post('/api/auth/login',{
+        email,password
+      });
+     
+      if(response.data.success){
+        await login(response.data.user,response.data.token)
+        if(response.data.user.role==='Admin'){
+          navigate('/admin-dashboard');
+        }
+        else {
+          navigate('/it-staff-dashboard');
+        }
+      }
+      else{
+        alert(response.data.message)
+      }
+
+    }catch(error){
+      setError(error.message)
+
+    }
+    finally{
       setLoading(false);
     }
   }
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-200 px-4">
-      <form onSubmit={onSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-sm">
+    <div className="flex items-center justify-center min-h-screen bg-gray-200 px-4" style={{
+  backgroundImage: "url('/parliament-bg.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center"
+}}
+>
+      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
         <input
           type="email"
@@ -49,7 +71,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+          className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-bold py-2 px-4 rounded w-full"
         >
           {loading ? 'Signing in...' : 'Login'}
         </button>

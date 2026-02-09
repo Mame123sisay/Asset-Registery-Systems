@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
 
-export default function AssetForm() {
+export default function AssetForm({onAssetCreated}) {
   const [serialNumber, setSerialNumber] = useState('');
   const [type, setType] = useState('Laptop');
   const [model, setModel] = useState('');
@@ -22,10 +22,20 @@ export default function AssetForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const depRes = await client.get('/api/departments');
-        setDepartments(depRes.data);
-        const userRes = await client.get('/api/org-users');
-        setUsers(userRes.data);
+        const depRes = await client.get('/api/departments',{
+          headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        setDepartments(depRes.data.departments);
+
+
+        const userRes = await client.get('/api/employees',{
+          headers:{
+          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        setUsers(userRes.data.employees);
       } catch (err) {
         console.error('Failed to load dropdown data', err);
       }
@@ -47,7 +57,7 @@ export default function AssetForm() {
     setMessage(null);
 
     try {
-      await client.post('/api/assets', {
+    const response=  await client.post('/api/assets', {
         serialNumber,
         type,
         model,
@@ -57,9 +67,14 @@ export default function AssetForm() {
         os: { name: osName, version: osVersion },
         departmentId,
         assignedUserId,
-        condition,
-      });
-      setMessage('Asset created successfully!');
+        condition},
+        {
+         headers:{
+        Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+        }
+        });
+        onAssetCreated(response.data.asset);
+      setMessage(response.data.message);
       // reset form
       setSerialNumber('');
       setType('Laptop');
@@ -80,7 +95,7 @@ export default function AssetForm() {
   }
 
   return (
-    <div className="flex items-center justify-center  bg-gray-100 px-4">
+    <div className="flex items-center justify-center  bg-gray-100 px-4 ">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-2xl"

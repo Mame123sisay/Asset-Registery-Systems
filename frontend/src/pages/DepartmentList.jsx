@@ -11,8 +11,15 @@ export default function DepartmentList() {
     async function fetchDepartments() {
       setLoading(true);
       try {
-        const res = await client.get('/api/departments');
-        setDepartments(res.data);
+        const res = await client.get('/api/departments',{
+          headers:{
+            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          }
+
+          })
+        
+        setDepartments(res.data.departments);
+        setLoading(false)
       } catch (err) {
         console.error('Failed to load departments', err);
       } finally {
@@ -21,14 +28,25 @@ export default function DepartmentList() {
     }
     fetchDepartments();
   }, []);
+   // callback to add new user 
+  function handleDepartmentCreated(newDepartment) { 
+    setDepartments(prev => [...prev, newDepartment]); }
+
 
   async function handleDelete(id) {
+    if(window.confirm('Are u sure you want to delete Department?')){
+
+    
     try {
-      await client.delete(`/api/departments/${id}`);
+      await client.delete(`/api/departments/${id}`,{
+         headers:{
+            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          }
+      });
       setDepartments(departments.filter(d => d._id !== id));
     } catch (err) {
       console.error('Delete failed', err);
-    }
+    }}
   }
 
  function handleEdit(department) { 
@@ -101,21 +119,13 @@ export default function DepartmentList() {
             </tbody>
           </table>
            {/* Conditionally render the form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <button onClick={() => setShowForm(false)}
-              className="text-red-600 font-bold hover:text-red-700 cursor-pointer float-right "
-            >
-              ✕
-            </button>
-            <DepartmentForm />
-          </div>
-        </div>
-      )}
+    {showForm && ( <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-50"> <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"  >
+       <button onClick={() => setShowForm(false)} className="text-red-600 font-bold hover:text-red-700 cursor-pointer float-right"  > ✕
+         </button>
+          <DepartmentForm  onDepartmentCreated={handleDepartmentCreated} /> </div> </div> )}
        {/* Edit Form Modal */}
       {editDept && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
             <button onClick={() => setEditDept(null)} className="absolute top-2 right-2 text-red-600 font-bold hover:cursor-pointer">✕</button>
             <DepartmentEditForm department={editDept} onClose={() => setEditDept(null)}

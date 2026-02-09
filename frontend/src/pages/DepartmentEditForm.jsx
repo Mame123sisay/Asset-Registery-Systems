@@ -21,12 +21,17 @@ export default function DepartmentEditForm({ department, onClose, onUpdated }) {
     setMessage(null);
 
     try {
-      const res = await client.put(`/api/departments/${department._id}`, {
+      const response = await client.put(`/api/departments/edit${department._id}`, {
         name,
         manager,
-      });
+      },
+    {
+      headers:{
+        Authorization:`Bearers ${localStorage.getItem('pos-token')}`
+      }
+    });
       setMessage('Department updated successfully!');
-      onUpdated(res.data); // update parent state
+      onUpdated(response.data.department); // update parent state
       onClose();           // close modal
     } catch (err) {
       setMessage(err.message || 'Failed to update department');
@@ -38,7 +43,7 @@ export default function DepartmentEditForm({ department, onClose, onUpdated }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md"
+      className="bg-white shadow-md rounded px-8 pt-6 pb-8  max-w-md"
     >
       <h2 className="text-2xl font-bold mb-6 text-center">Edit Department</h2>
 

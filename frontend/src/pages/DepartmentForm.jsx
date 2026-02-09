@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { client } from '../api/client'; // axios instance
 
-export default function DepartmentForm() {
+export default function DepartmentForm({onDepartmentCreated}) {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [manager, setManager] = useState('');
@@ -14,7 +14,14 @@ export default function DepartmentForm() {
     setMessage(null);
 
     try {
-      await client.post('/api/departments', { name, code, manager });
+    const response=  await client.post('/api/departments/add', { name, code, manager },
+        {
+          headers:{
+            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          }
+        }
+      );
+      onDepartmentCreated(response.data.department);
       setMessage('Department created successfully!');
       setName('');
       setCode('');
@@ -27,7 +34,7 @@ export default function DepartmentForm() {
   }
 
   return (
-    <div className="flex items-center justify-center  bg-gray-100 px-4">
+    <div className="flex items-center justify-center  bg-gray-100 px-4 ">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md"
