@@ -15,7 +15,7 @@ export default function ProfilePage({ userId }) {
         const res = await client.get(`/api/users/${user.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("pos-token")}` },
         });
-        setUser(res.data);
+       // setUser(res.data);
 
         const depRes = await client.get("/api/departments", {
           headers: { Authorization: `Bearer ${localStorage.getItem("pos-token")}` },
@@ -50,7 +50,7 @@ export default function ProfilePage({ userId }) {
         },
       });
 
-      setUser(res.data.updatedUser);
+     // setUser(res.data.updatedUser);
       setNewPicture(null);
       setEditing(false);
       setNewPicture(null);
