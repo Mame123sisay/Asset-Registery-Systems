@@ -17,7 +17,7 @@ dotenv.config({override:true}); // Reads .env and attaches values to process.env
 const app = express();  
 // Allow requests only from your frontend
 app.use(cors({
-    origin: "https://asset-registery-systems-1.onrender.com", // <-- FRONTEND URL
+    origin:process.env.FRONTEND_ORIGIN, // <-- FRONTEND URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you need cookies/auth headers
 }));
