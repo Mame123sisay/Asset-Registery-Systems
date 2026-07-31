@@ -13,8 +13,11 @@ export default function Navbar() {
       {user && (
         <div className="flex items-center space-x-3 ml-auto">
           <img
-            src={`${import.meta.env.VITE_API_URI}${user.profilePicture}`}
-            alt="Profile"
+            src={
+    user.profilePicture
+      ? `${import.meta.env.VITE_API_URI}${user.profilePicture}`
+      : "/avatar.jpg"
+  }
             className="w-10 h-10 rounded-full object-cover border"
           />
           <span className="font-semibold">{user.name}</span>
