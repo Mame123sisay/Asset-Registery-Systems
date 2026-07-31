@@ -16,5 +16,4 @@ export const Register= async()=>{
     console.log(err);
   }
 
-}
-*/}
+}*/}
