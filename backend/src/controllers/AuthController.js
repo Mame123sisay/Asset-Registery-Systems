@@ -4,9 +4,11 @@ import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken'
 export const Login= async(req,res)=>{
   const{email,password}=req.body
+  //console.log(email)
   try
 {
      const user=  await User.findOne({email});
+     //console.log(user)
     if(!user){
     return res.status(401).json({success:false,message:'user not found'});
   }

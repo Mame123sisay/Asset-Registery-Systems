@@ -10,17 +10,18 @@ import departmentRoutes from './src/routes/department.js';
 import employeeRoutes from './src/routes/employee.js'
 import authRoutes from './src/routes/auth.js';
 import userRoutes from './src/routes/user.js'
-
+import authMiddleware from './src/middleware/authMiddleware.js';
 dotenv.config({override:true}); // Reads .env and attaches values to process.env
 
 // 4) Create the Express app
 const app = express();  
 // Allow requests only from your frontend
-app.use(cors({
+{/*app.use(cors({
     origin:process.env.FRONTEND_ORIGIN, // <-- FRONTEND URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you need cookies/auth headers
-}));
+}));*/}
+app.use(cors());
 app.use(express.json())  
 app.use('/uploads', express.static('public/uploads'));
 
@@ -32,7 +33,9 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/employees',employeeRoutes);
 dbConnection();
 //Register();
-
+app.get('/',async(req,res)=>{
+    res.send('hello')
+})
 const PORT = process.env.PORT ||5000; 
 app.listen(PORT, () => console.log(`API listening on :${PORT}`)); // Boot the server
 

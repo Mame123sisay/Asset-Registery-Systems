@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance so all requests share baseURL and headers logic.
 export const client = axios.create({
- baseURL: import.meta.env.VITE_API_URL, // Use env var; fallback for local dev.
+ baseURL: import.meta.env.VITE_API_URI, // Use env var; fallback for local dev.
   timeout: 10000, // Prevent hanging; fail fast so UI can show errors.
 });
-
+//console.log(import.meta.env.VITE_API_URI);

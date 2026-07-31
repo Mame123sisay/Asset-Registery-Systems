@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const dbConnection=()=>{
   try{
- mongoose.connect(process.env.MONGO_URI);
+ mongoose.connect(process.env.MONGODB_URI);
  console.log("database connected successfully");
   }
   catch(error){

@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('pos-token');
     localStorage.removeItem('pos-user');
     setUser(null);
-    // 👇 redirect to home 
+    //  redirect to home 
     navigate('/login');
   }
 

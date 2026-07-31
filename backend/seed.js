@@ -1,5 +1,5 @@
 {/*import User from './src/models/User.js'
-import bcrypt from'bcrypt'
+import bcrypt from'bcryptjs'
 export const Register= async()=>{
   try{
     const hashedPassword=await bcrypt.hash('Admin',10);

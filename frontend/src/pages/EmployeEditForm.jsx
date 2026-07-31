@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
-
+import Select from 'react-select'
 export default function EmployeEditForm({ employe, onClose, onUpdated }) {
   
   const [fullname, setFullname] = useState('');
@@ -107,18 +107,19 @@ export default function EmployeEditForm({ employe, onClose, onUpdated }) {
 
       <label className="block mb-3">
         <span className="text-gray-700">Departments</span>
-        <select
-          className="border rounded w-full px-3 py-2 mt-1"
-          value={departmentId}
-          onChange={(e) => setDepartmentId(e.target.value)}
-        >
-          {departments.map((d) => (
-            <option key={d._id} value={d._id}>
-              {d.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+  options={departments.map(d => ({ value: d._id, label: d.name }))}
+  value={
+    departments.find(d => d._id === departmentId)
+      ? { value: departmentId, label: departments.find(d => d._id === departmentId).name }
+      : null
+  }
+  onChange={(selected) => setDepartmentId(selected.value)}
+  placeholder="Search Department..."
+  isSearchable
+  className="mb-2"
+  
+/> </label>
 
 
    

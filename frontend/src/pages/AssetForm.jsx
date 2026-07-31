@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
-
-export default function AssetForm({onAssetCreated}) {
+import Select from 'react-select'
+export default function AssetForm({ onAssetCreated }) {
   const [serialNumber, setSerialNumber] = useState('');
   const [type, setType] = useState('Laptop');
   const [model, setModel] = useState('');
@@ -17,23 +17,20 @@ export default function AssetForm({onAssetCreated}) {
   const [condition, setCondition] = useState('New');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [visible, setVisible] = useState(false); // NEW: controls animation
 
-  // Fetch departments and users for dropdowns
   useEffect(() => {
+    setVisible(true); // trigger animation when mounted
+
     async function fetchData() {
       try {
-        const depRes = await client.get('/api/departments',{
-          headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
-        }
+        const depRes = await client.get('/api/departments', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
         });
         setDepartments(depRes.data.departments);
 
-
-        const userRes = await client.get('/api/employees',{
-          headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
-        }
+        const userRes = await client.get('/api/employees', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
         });
         setUsers(userRes.data.employees);
       } catch (err) {
@@ -43,7 +40,6 @@ export default function AssetForm({onAssetCreated}) {
     fetchData();
   }, []);
 
-  // Add/remove storage entries
   const addStorage = () => setStorage([...storage, { kind: 'SSD', sizeGB: '' }]);
   const updateStorage = (index, field, value) => {
     const newStorage = [...storage];
@@ -57,7 +53,7 @@ export default function AssetForm({onAssetCreated}) {
     setMessage(null);
 
     try {
-    const response=  await client.post('/api/assets', {
+      const response = await client.post('/api/assets', {
         serialNumber,
         type,
         model,
@@ -67,14 +63,14 @@ export default function AssetForm({onAssetCreated}) {
         os: { name: osName, version: osVersion },
         departmentId,
         assignedUserId,
-        condition},
-        {
-         headers:{
-        Authorization:`Bearer ${localStorage.getItem('pos-token')}`
-        }
-        });
-        onAssetCreated(response.data.asset);
+        condition
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
+      });
+
+      onAssetCreated(response.data.asset);
       setMessage(response.data.message);
+
       // reset form
       setSerialNumber('');
       setType('Laptop');
@@ -93,12 +89,25 @@ export default function AssetForm({onAssetCreated}) {
       setLoading(false);
     }
   }
+  const customStyles = {
+  control: (provided) => ({
+    ...provided,
+    borderRadius: "0.5rem",
+    padding: "2px",
+    borderColor: "#d1d5db", // Tailwind gray-300
+  }),
+};
 
   return (
-    <div className="flex items-center justify-center  bg-gray-100 px-4 ">
+    <div
+      className={`
+        transform transition-all duration-700 ease-out
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}
+      `}
+    >
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-2xl"
+        className="bg-white shadow-lg rounded-xl px-8 pt-6 pb-8 w-full max-w-2xl"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Add Asset</h2>
 
@@ -127,7 +136,6 @@ export default function AssetForm({onAssetCreated}) {
                 onChange={(e) => updateStorage(i, 'kind', e.target.value)}>
                 <option value="HDD">HDD</option>
                 <option value="SSD">SSD</option>
-              
               </select>
               <input type="number" placeholder="Size (GB)" className="border rounded px-2 py-1"
                 value={s.sizeGB} onChange={(e) => updateStorage(i, 'sizeGB', e.target.value)} />
@@ -143,21 +151,35 @@ export default function AssetForm({onAssetCreated}) {
           <input type="text" placeholder="OS Version" className="border rounded px-3 py-2"
             value={osVersion} onChange={(e) => setOsVersion(e.target.value)} />
 
-          <select className="border rounded px-3 py-2" value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}>
-            <option value="">Select Department</option>
-            {departments.map((d) => (
-              <option key={d._id} value={d._id}>{d.name}</option>
-            ))}
-          </select>
+        {/* Department */}
+<Select
+  options={departments.map(d => ({ value: d._id, label: d.name }))}
+  value={
+    departments.find(d => d._id === departmentId)
+      ? { value: departmentId, label: departments.find(d => d._id === departmentId).name }
+      : null
+  }
+  onChange={(selected) => setDepartmentId(selected.value)}
+  placeholder="Search Department..."
+  isSearchable
+  className="mb-2"
+  styles={customStyles}
+/>
 
-          <select className="border rounded px-3 py-2" value={assignedUserId}
-            onChange={(e) => setAssignedUserId(e.target.value)}>
-            <option value="">Select User</option>
-            {users.map((u) => (
-              <option key={u._id} value={u._id}>{u.fullname}</option>
-            ))}
-          </select>
+{/* User */}
+<Select
+  options={users.map(u => ({ value: u._id, label: u.fullname }))}
+  value={
+    users.find(u => u._id === assignedUserId)
+      ? { value: assignedUserId, label: users.find(u => u._id === assignedUserId).fullname }
+      : null
+  }
+  onChange={(selected) => setAssignedUserId(selected.value)}
+  placeholder="Search User..."
+  isSearchable
+  className="mb-2"
+/>
+
 
           <select className="border rounded px-3 py-2" value={condition}
             onChange={(e) => setCondition(e.target.value)}>

@@ -2,7 +2,6 @@ import Employee from "../models/Employee.js";
 const AddEmploye= async(req,res)=>{
   try{
     const{fullname,email,phone,departmentId}=req.body;
-    console.log(fullname)
     const existingEmploye= await Employee.findOne({fullname});
     if(existingEmploye){
       res.status(409).json({success:false,message:'Employee already exist'});
@@ -10,7 +9,6 @@ const AddEmploye= async(req,res)=>{
     const newEmploye= await  Employee.create({fullname,email,phone,departmentId});
     //populate department before sending back
     const populatedEmployee=await Employee.findById(newEmploye._id).populate('departmentId','name');
-    console.log(populatedEmployee);
     res.status(201).json({success:true,message:'Employe created Successfully',newEmploye:populatedEmployee});
 
   }catch(error){

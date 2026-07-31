@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
-
+import Select from 'react-select';
 export default function AssetEditForm({ asset, onClose, onUpdated }) {
   const [serialNumber, setSerialNumber] = useState('');
   const [type, setType] = useState('');
@@ -174,26 +174,35 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
 
       <label className="block mb-3">
         <span className="text-gray-700">Department</span>
-        <select className="border rounded w-full px-3 py-2 mt-1"
-          value={departmentId}
-          onChange={(e) => setDepartmentId(e.target.value)}>
-          <option value="">Select Department</option>
-          {departments.map((d) => (
-            <option key={d._id} value={d._id}>{d.name}</option>
-          ))}
-        </select>
+      <Select
+  options={departments.map(d => ({ value: d._id, label: d.name }))}
+  value={
+    departments.find(d => d._id === departmentId)
+      ? { value: departmentId, label: departments.find(d => d._id === departmentId).name }
+      : null
+  }
+  onChange={(selected) => setDepartmentId(selected.value)}
+  placeholder="Search Department..."
+  isSearchable
+  className="mb-2"
+  
+/>
       </label>
 
       <label className="block mb-3">
         <span className="text-gray-700">Assigned User</span>
-        <select className="border rounded w-full px-3 py-2 mt-1"
-          value={assignedUserId}
-          onChange={(e) => setAssignedUserId(e.target.value)}>
-          <option value="">Select User</option>
-          {users.map((u) => (
-            <option key={u._id} value={u._id}>{u.fullname}</option>
-          ))}
-        </select>
+      <Select
+  options={users.map(u => ({ value: u._id, label: u.fullname }))}
+  value={
+    users.find(u => u._id === assignedUserId)
+      ? { value: assignedUserId, label: users.find(u => u._id === assignedUserId).fullname }
+      : null
+  }
+  onChange={(selected) => setAssignedUserId(selected.value)}
+  placeholder="Search User..."
+  isSearchable
+  className="mb-2"
+/>
       </label>
 
       {message && <div className="text-center mb-3 text-sm text-blue-600">{message}</div>}

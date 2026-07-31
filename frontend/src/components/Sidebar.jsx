@@ -34,7 +34,7 @@ export default function Sidebar() {
   const menuItems = user?.role === "Admin" ? adminMenu : itStaffMenu;
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a3b6c] text-white w-16 md:w-64 fixed">
+    <div className="flex flex-col h-screen bg-[#0a3b6c] text-white w-16 md:w-64 fixed top-0  z-50">
       {/* Logo */}
       <div className="flex flex-col items-center justify-center py-3 border-b border-blue-800">
         <img
