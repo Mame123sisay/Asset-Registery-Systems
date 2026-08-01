@@ -23,7 +23,7 @@ app.use(cors({
 }));
 //app.use(cors());
 app.use(express.json())  
-app.use('/uploads', express.static('public/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use('/api/departments',departmentRoutes);
 app.use('/api/users',userRoutes);
