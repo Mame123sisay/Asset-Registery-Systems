@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';          
 import cors from 'cors';  
 import cookieParser from "cookie-parser";
-
+import path from "path";
+import { fileURLToPath } from "url";
 //import {Register} from './seed.js'           
 //import morgan from 'morgan';           
 import dbConnection from './src/config/db.js';
@@ -28,7 +29,11 @@ app.use(cors({
   credentials: true,               // allow cookies
 }));*/}
 app.use(cookieParser());
-app.use(express.json())  
+app.use(express.json());
+
+// Fix __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);  
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 //app.use('/uploads', express.static('public/uploads'));
 app.use('/api/departments',departmentRoutes);
