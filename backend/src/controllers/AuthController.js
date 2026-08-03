@@ -28,7 +28,7 @@ export const Login = async (req, res) => {
 
     // Long-lived refresh token
     const refreshToken = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role,profilePicture:user.profilePicture },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
