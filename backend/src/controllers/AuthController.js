@@ -38,7 +38,7 @@ export const Login = async (req, res) => {
 res.cookie("refreshToken", refreshToken, {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production", // false for localhost
-  sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 });
 
 
