@@ -22,21 +22,24 @@ ChartJS.register(
   Legend,
   ArcElement
 );
+import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
   const [conditionStats, setConditionStats] = useState([]);
   const [departmentStats, setDepartmentStats] = useState([]);
+  const {token}=useAuth();
+ 
 
   useEffect(() => {
     async function fetchStats() {
       const condRes = await client.get('/api/assets/stats/condition',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
       });
       const deptRes = await client.get('/api/assets/stats/department',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
       });
       setConditionStats(condRes.data);

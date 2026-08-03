@@ -19,6 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const response = await client.post('/api/auth/login', { email, password });
+
       if (response.data.success) {
         await login(response.data.user, response.data.token);
         if (response.data.user.role === 'Admin') {

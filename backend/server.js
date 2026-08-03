@@ -1,7 +1,9 @@
 import express from 'express';      
 import mongoose from 'mongoose';       
 import dotenv from 'dotenv';          
-import cors from 'cors';    
+import cors from 'cors';  
+import cookieParser from "cookie-parser";
+
 //import {Register} from './seed.js'           
 //import morgan from 'morgan';           
 import dbConnection from './src/config/db.js';
@@ -21,10 +23,14 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you need cookies/auth headers
 }));
-//app.use(cors());
+{/*app.use(cors({
+  origin: "http://localhost:5173", // your frontend origin
+  credentials: true,               // allow cookies
+}));*/}
+app.use(cookieParser());
 app.use(express.json())  
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-
+//app.use('/uploads', express.static('public/uploads'));
 app.use('/api/departments',departmentRoutes);
 app.use('/api/users',userRoutes);
 app.use('/api/auth', authRoutes);     

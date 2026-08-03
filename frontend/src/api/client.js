@@ -5,5 +5,6 @@ import axios from 'axios';
 export const client = axios.create({
  baseURL: import.meta.env.VITE_API_URI, // Use env var; fallback for local dev.
   timeout: 10000, // Prevent hanging; fail fast so UI can show errors.
+  withCredentials: true, // critical for cookies
 });
 //console.log(import.meta.env.VITE_API_URI);
