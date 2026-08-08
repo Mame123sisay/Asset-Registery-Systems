@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function UserEditForm({ user, onClose, onUpdated }) {
   console.log(user)
@@ -12,6 +13,7 @@ export default function UserEditForm({ user, onClose, onUpdated }) {
   const [message, setMessage] = useState(null);
   const [userRole,setUserRole]=useState([]);
   // 🔑 Sync props to state when user changes
+  const{token}=useAuth()
   useEffect(() => {
     if (user) {
       setFullname(user.name || '');
@@ -53,7 +55,7 @@ export default function UserEditForm({ user, onClose, onUpdated }) {
       try {
         const res=await client.get('/api/users',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
         });
         setUserRole(res.data.users);
@@ -82,7 +84,7 @@ export default function UserEditForm({ user, onClose, onUpdated }) {
         //authUserId,
        
       },{ headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
       });
       setMessage('User updated successfully!');

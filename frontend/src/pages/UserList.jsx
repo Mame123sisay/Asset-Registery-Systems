@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { client } from '../api/client';
 import UserForm from '../pages/UserForm'
 import UserEditForm from '../pages/UserEditForm';
+import { useAuth } from '../context/AuthContext';
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const{token}=useAuth();
   // Fetch OrgUsers
   useEffect(() => {
     async function fetchUsers() {
@@ -14,7 +16,7 @@ export default function UserList() {
       try {
         const res = await client.get('/api/users',{
           headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
         });
         setUsers(res.data.users);
@@ -39,7 +41,7 @@ export default function UserList() {
          try {
       await client.delete(`/api/users/delete${id}`,{
          headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
       });
       setUsers(users.filter(u => u._id !== id));

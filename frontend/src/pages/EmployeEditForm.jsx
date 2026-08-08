@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
 import Select from 'react-select'
+import { useAuth } from '../context/AuthContext';
 export default function EmployeEditForm({ employe, onClose, onUpdated }) {
   
   const [fullname, setFullname] = useState('');
@@ -10,6 +11,7 @@ export default function EmployeEditForm({ employe, onClose, onUpdated }) {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const{token}=useAuth();
  
   // 🔑 Sync props to state when user changes
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function EmployeEditForm({ employe, onClose, onUpdated }) {
       try {
         const res = await client.get('/api/departments',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
         });
         setDepartments(res.data.departments);
@@ -56,7 +58,7 @@ export default function EmployeEditForm({ employe, onClose, onUpdated }) {
         
        
       },{ headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
       });
       setMessage(res.data.message);

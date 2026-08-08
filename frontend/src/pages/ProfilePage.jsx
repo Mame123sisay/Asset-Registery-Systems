@@ -8,17 +8,18 @@ export default function ProfilePage({ userId }) {
   const [editing, setEditing] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [newPicture, setNewPicture] = useState(null);
+  const{token}=useAuth()
 
   useEffect(() => {
     async function fetchData() {
       try {
         const res = await client.get(`/api/users/${user.id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("pos-token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
        // setUser(res.data);
 
         const depRes = await client.get("/api/departments", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("pos-token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setDepartments(depRes.data.departments);
       } catch (err) {
@@ -45,7 +46,7 @@ export default function ProfilePage({ userId }) {
 
       const res = await client.put(`/api/users/${user.id}`, formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });

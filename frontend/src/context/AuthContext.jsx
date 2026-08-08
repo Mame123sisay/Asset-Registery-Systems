@@ -11,17 +11,17 @@ export function AuthProvider({ children }) {
     const storedUser = localStorage.getItem("pos-user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
-  const [token, setToken] = useState(() => localStorage.getItem("pos-token"));
-  const navigate = useNavigate();
 
-  // useRef so the channel persists and isn’t recreated on every render
+  // ✅ Use sessionStorage for access token
+  const [token, setToken] = useState(() => sessionStorage.getItem("pos-token"));
+  const navigate = useNavigate();
   const channelRef = useRef(new BroadcastChannel("auth"));
 
   async function login(userData, accessToken) {
     setUser(userData);
     setToken(accessToken);
     localStorage.setItem("pos-user", JSON.stringify(userData));
-    localStorage.setItem("pos-token", accessToken);
+    sessionStorage.setItem("pos-token", accessToken);
     channelRef.current.postMessage("login");
   }
 
@@ -30,8 +30,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     localStorage.removeItem("pos-user");
-    localStorage.removeItem("pos-token");
-    //  Guard against closed channel
+    sessionStorage.removeItem("pos-token");
     if (channelRef.current) {
       try {
         channelRef.current.postMessage("logout");
@@ -48,7 +47,7 @@ export function AuthProvider({ children }) {
       const res = await client.post("/api/auth/refresh", {}, { withCredentials: true });
       setToken(res.data.token);
       setUser(res.data.user);
-      localStorage.setItem("pos-token", res.data.token);
+      sessionStorage.setItem("pos-token", res.data.token);
       localStorage.setItem("pos-user", JSON.stringify(res.data.user));
     } catch {
       logout();
@@ -64,14 +63,16 @@ export function AuthProvider({ children }) {
         setToken(null);
         navigate("/login");
       }
+      if (event.data === "login") {
+        refreshAccessToken();
+      }
     };
-    //Don’t close the channel here — keep it alive
     return () => {
       channel.onmessage = null;
     };
   }, []);
 
-  // On mount → try refresh
+  // ✅ On mount → always check refresh cookie
   useEffect(() => {
     refreshAccessToken();
   }, []);

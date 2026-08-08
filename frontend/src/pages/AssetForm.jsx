@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
 import Select from 'react-select'
+import { useAuth } from '../context/AuthContext';
 export default function AssetForm({ onAssetCreated }) {
   const [serialNumber, setSerialNumber] = useState('');
   const [type, setType] = useState('Laptop');
@@ -18,19 +19,19 @@ export default function AssetForm({ onAssetCreated }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [visible, setVisible] = useState(false); // NEW: controls animation
-
+  const{token}=useAuth();
   useEffect(() => {
     setVisible(true); // trigger animation when mounted
 
     async function fetchData() {
       try {
         const depRes = await client.get('/api/departments', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         setDepartments(depRes.data.departments);
 
         const userRes = await client.get('/api/employees', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         setUsers(userRes.data.employees);
       } catch (err) {
@@ -65,7 +66,7 @@ export default function AssetForm({ onAssetCreated }) {
         assignedUserId,
         condition
       }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('pos-token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       onAssetCreated(response.data.asset);

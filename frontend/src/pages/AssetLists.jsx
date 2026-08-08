@@ -3,6 +3,7 @@ import { client } from '../api/client';
 import AssetForm from '../pages/AssetForm'
 import AssetEditForm from '../pages/AssetEditForm';
 import AssetFilter  from './AssetFilter';
+import { useAuth } from '../context/AuthContext';
 export default function AssetLists() {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,10 +20,10 @@ export default function AssetLists() {
 
 const [page, setPage] = useState(1);
 const [pages, setPages] = useState(1);
-  const [editAsset, setEditAsset] = useState(null);
- 
+const [editAsset, setEditAsset] = useState(null);
+ const {token}=useAuth();
 
-    function handleAssetCreated(newAsset) {
+  function handleAssetCreated(newAsset) {
   fetchAssets();
 }
     async function fetchAssets() {
@@ -36,7 +37,7 @@ const [pages, setPages] = useState(1);
         limit: 5,
       },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -58,7 +59,7 @@ useEffect(() => {
       try {
       await client.delete(`/api/assets/delete${id}`,{
          headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
       });
       fetchAssets();

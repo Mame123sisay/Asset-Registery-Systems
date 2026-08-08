@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { client } from '../api/client'; // axios instance
+import { useAuth } from '../context/AuthContext';
 
 export default function UserForm({ onUserCreated }) {
   const [password, setPassword] = useState('');
@@ -9,7 +10,7 @@ export default function UserForm({ onUserCreated }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState({}); // store field-specific errors
-
+  const{token}=useAuth();
   // manual validation
   function validateForm() {
     const newErrors = {};
@@ -42,7 +43,7 @@ export default function UserForm({ onUserCreated }) {
         role
       }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('pos-token')}`
+          Authorization: `Bearer ${token}`
         }
       });
 

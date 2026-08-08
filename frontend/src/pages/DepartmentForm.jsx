@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { client } from '../api/client'; // axios instance
+import { useAuth } from '../context/AuthContext';
 
 export default function DepartmentForm({onDepartmentCreated}) {
   const [name, setName] = useState('');
@@ -7,7 +8,7 @@ export default function DepartmentForm({onDepartmentCreated}) {
   const [manager, setManager] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-
+  const{token}=useAuth();
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
@@ -17,7 +18,7 @@ export default function DepartmentForm({onDepartmentCreated}) {
     const response=  await client.post('/api/departments/add', { name, code, manager },
         {
           headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
         }
       );

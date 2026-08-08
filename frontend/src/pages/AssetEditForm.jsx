@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
 import Select from 'react-select';
+import { useAuth } from '../context/AuthContext';
 export default function AssetEditForm({ asset, onClose, onUpdated }) {
   const [serialNumber, setSerialNumber] = useState('');
   const [type, setType] = useState('');
@@ -17,7 +18,7 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-
+  const{token}=useAuth();
   useEffect(() => {
     if (asset) {
       setSerialNumber(asset.serialNumber || '');
@@ -39,13 +40,13 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
       try {
         const depRes = await client.get('/api/departments',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
         });
         setDepartments(depRes.data.departments);
         const userRes = await client.get('/api/employees',{
            headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
         });
         setUsers(userRes.data.employees);
@@ -82,7 +83,7 @@ export default function AssetEditForm({ asset, onClose, onUpdated }) {
       },
     {
        headers:{
-          Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+          Authorization:`Bearer ${token}`
         }
     });
       setMessage('Asset updated successfully!');

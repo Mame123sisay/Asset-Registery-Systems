@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client'; // axios instance
 import Select from 'react-select'
+import { useAuth } from '../context/AuthContext';
 export default function EmployeAddForm({ onEmployeCreated }) {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -10,14 +11,14 @@ export default function EmployeAddForm({ onEmployeCreated }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState({}); // field-specific errors
-
+  const{token}=useAuth();
   // Fetch departments for dropdown
   useEffect(() => {
     async function fetchDepartments() {
       try {
         const res = await client.get('/api/departments', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('pos-token')}`
+            Authorization: `Bearer ${token}`
           }
         });
         setDepartments(res.data.departments);
@@ -60,7 +61,7 @@ export default function EmployeAddForm({ onEmployeCreated }) {
         departmentId
       }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('pos-token')}`
+          Authorization: `Bearer ${token}`
         }
       });
 

@@ -2,18 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { client } from '../api/client';
 import DepartmentForm from '../pages/DepartmentForm.jsx';
 import DepartmentEditForm from '../pages/DepartmentEditForm.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 export default function DepartmentList() {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editDept, setEditDept] = useState(null);
+  const{token}=useAuth();
   useEffect(() => {
     async function fetchDepartments() {
       setLoading(true);
       try {
         const res = await client.get('/api/departments',{
           headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
 
           })
@@ -40,7 +42,7 @@ export default function DepartmentList() {
     try {
       await client.delete(`/api/departments/${id}`,{
          headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
       });
       setDepartments(departments.filter(d => d._id !== id));

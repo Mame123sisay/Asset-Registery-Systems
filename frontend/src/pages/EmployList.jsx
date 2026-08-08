@@ -4,11 +4,13 @@ import OrgUserForm from './UserForm'
 import OrgUserEditForm from './UserEditForm';
 import EmployeAddForm from './EmployeAddForm';
 import EmployeEditForm from './EmployeEditForm';
+import { useAuth } from '../context/AuthContext';
 export default function EmployList() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
+  const{token}=useAuth()
   // Fetch OrgUsers
   useEffect(() => {
     async function fetchEmployees() {
@@ -16,7 +18,7 @@ export default function EmployList() {
       try {
         const res = await client.get('/api/employees',{
           headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
         });
         setEmployees(res.data.employees);
@@ -40,7 +42,7 @@ export default function EmployList() {
     try {
       await client.delete(`/api/employees/delete${id}`,{
          headers:{
-            Authorization:`Bearer ${localStorage.getItem('pos-token')}`
+            Authorization:`Bearer ${token}`
           }
       });
       setEmployees(employees.filter(e => e._id !== id));

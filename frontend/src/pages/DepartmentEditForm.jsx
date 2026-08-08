@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function DepartmentEditForm({ department, onClose, onUpdated }) {
   const [name, setName] = useState('');
   const [manager, setManager] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-
+  const{token}=useAuth();
   // 🔑 Sync props to state when department changes
   useEffect(() => {
     if (department) {
@@ -27,7 +28,7 @@ export default function DepartmentEditForm({ department, onClose, onUpdated }) {
       },
     {
       headers:{
-        Authorization:`Bearers ${localStorage.getItem('pos-token')}`
+        Authorization:`Bearers ${token}`
       }
     });
       setMessage('Department updated successfully!');
